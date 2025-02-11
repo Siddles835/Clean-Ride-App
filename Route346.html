@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Route 346</title>
+    <script src="main.js"></script>
+    <style>
+        body {
+            margin: 20px;
+            border: 10px solid #007698;
+            padding: 20px;
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+        #Canvas1 {
+            border: 3px solid #007bff;
+            background-color: white;
+            display: block;
+            margin: 20px auto;
+        }
+        #controls {
+            margin-top: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #buttons{
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007698;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Route 346</h1>
+    <canvas id="Canvas1" width="600" height="600"></canvas>
+    <div id="controls">
+        <button onclick="startBus()">Start Bus</button>
+    </div>
+    <br>
+    <br>
+    <label>Estimated Time Until Arrival: 30 minutes</label>
+    <br>
+    <br>
+    <button id="buttons" onclick="goBack3()">Go Back</button>
+
+    <script>
+        const canvas = document.getElementById("Canvas1");
+        const ctx = canvas.getContext("2d");
+
+        const busIcon = new Image();
+        busIcon.src = "https://cdn-icons-png.flaticon.com/128/3004/3004613.png";
+
+        const busStopIcon = new Image();
+        busStopIcon.src = "https://cdn-icons-png.flaticon.com/128/1946/1946488.png";
+
+        const schoolIcon = new Image();
+        schoolIcon.src = "https://cdn-icons-png.flaticon.com/128/1673/1673212.png";
+
+        const route = [
+            { x: 50, y: 550, label: "Bus Stop" }, 
+            { x: 150, y: 500 }, 
+            { x: 250, y: 450 },
+            { x: 350, y: 400 }, 
+            { x: 450, y: 350 }, 
+            { x: 500, y: 300 },
+            { x: 400, y: 250 }, 
+            { x: 300, y: 200 }, 
+            { x: 200, y: 150 },
+            { x: 100, y: 100, label: "School" }
+        ];
+
+        let busIndex = 0; 
+        let busMoving = false;
+
+        function drawRoute() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.beginPath();
+            ctx.moveTo(route[0].x, route[0].y);
+            ctx.strokeStyle = "#000";
+            ctx.lineWidth = 4;
+            for (let i = 1; i < route.length; i++) {
+                ctx.lineTo(route[i].x, route[i].y);
+            }
+            ctx.stroke();
+
+            ctx.drawImage(busStopIcon, route[0].x - 20, route[0].y - 50, 40, 40);
+            ctx.drawImage(schoolIcon, route[route.length - 1].x - 20, route[route.length - 1].y - 50, 40, 40);
+
+            ctx.fillStyle = "red";
+            ctx.font = "16px Arial";
+            route.forEach(point => {
+                if (point.label) {
+                    ctx.fillText(point.label, point.x - 30, point.y - 10);
+                }
+            });
+        }
+
+        function drawBus(x, y) {
+            ctx.drawImage(busIcon, x - 15, y - 15, 30, 30);
+            ctx.fillStyle = "black";
+            ctx.font = "14px Arial";
+            ctx.fillText("Driver 1", x - 20, y - 20);
+        }
+
+        function startBus() {
+            if (busMoving) return;
+            busMoving = true;
+
+            let interval = setInterval(() => {
+                if (busIndex < route.length - 1) {
+                    busIndex++;
+                    drawRoute();
+                    drawBus(route[busIndex].x, route[busIndex].y);
+                } else {
+                    clearInterval(interval);
+                    busMoving = false;
+                }
+            }, 500);
+        }
+
+        busIcon.onload = busStopIcon.onload = schoolIcon.onload = drawRoute;
+    </script>
+
+</body>
+</html>

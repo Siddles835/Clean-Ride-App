@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Rideshare Booking</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <script src="https://js.stripe.com/v3/"></script>
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 800px;
+        }
+        #map {
+            height: 300px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container my-5">
+        <h1 class="text-center text-primary mb-4" id="heads">Book a Rideshare</h1>
+
+        <div class="card shadow-sm p-4">
+            <h4 class="mb-3">Enter your details to book a ride:</h4>
+            <form id="rideForm">
+                <div class="mb-3">
+                    <label class="form-label">Pickup Location (Auto-Detected)</label>
+                    <input type="text" class="form-control" id="pickupLocation" placeholder="Fetching your location..." readonly>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Destination (Enter a place/address)</label>
+                    <input type="text" class="form-control" id="destination" placeholder="Enter your destination" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Number of Passengers</label>
+                    <input type="number" class="form-control" id="passengers" min="1" max="6" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Ride Type</label>
+                    <select class="form-select" id="rideType" required>
+                        <option value="">Select Ride Type</option>
+                        <option value="Standard">Standard</option>
+                        <option value="Luxury">Luxury</option>
+                        <option value="Shared">Shared</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Payment Method</label>
+                    <select class="form-select" id="paymentMethod" required>
+                        <option value="">Select Payment Method</option>
+                        <option value="Card">Credit/Debit Card</option>
+                        <option value="Cash">Cash</option>
+                        <option value="Wallet">Digital Wallet</option>
+                    </select>
+                </div>
+
+                <div class="mb-3" id="card-element-section" style="display: none;">
+                    <label class="form-label">Card Payment</label>
+                    <div id="card-element">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Book Ride</button>
+            </form>
+        </div>
+
+        <div class="mt-4">
+            <h4 class="text-center">Your Ride Route</h4>
+            <div id="map"></div>
+        </div>
+
+        <div class="mt-4 text-center" id="travelTime" style="display: none;">
+            <h5>Estimated Travel Time: <span id="timeDisplay">0</span> minutes</h5>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        var map = L.map('map').setView([40.7128, -74.0060], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors' }).addTo(map);
+
+        var pickupMarker, destinationMarker, routeLine;
+        var pickupLat, pickupLng;
+
+        function getUserLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    pickupLat = position.coords.latitude;
+                    pickupLng = position.coords.longitude;
+
+                    pickupMarker = L.marker([pickupLat, pickupLng]).addTo(map)
+                        .bindPopup('Your Pickup Location').openPopup();
+
+                    map.setView([pickupLat, pickupLng], 14);
+
+                    document.getElementById("pickupLocation").value = `Lat: ${pickupLat}, Lng: ${pickupLng}`;
+                }, function (error) {
+                    alert("Geolocation failed: " + error.message);
+                });
+            } else {
+                alert("Geolocation is not supported by your browser.");
+            }
+        }
+        getUserLocation();
+
+        function updateMap(destLat, destLng) {
+            if (destinationMarker) map.removeLayer(destinationMarker);
+            if (routeLine) map.removeLayer(routeLine);
+
+            destinationMarker = L.marker([destLat, destLng]).addTo(map)
+                .bindPopup('Destination').openPopup();
+
+            routeLine = L.polyline([
+                [pickupLat, pickupLng],
+                [destLat, destLng]
+            ], { color: 'blue' }).addTo(map);
+
+            map.fitBounds([
+                [pickupLat, pickupLng],
+                [destLat, destLng]
+            ]);
+
+            estimateTravelTime(pickupLat, pickupLng, destLat, destLng);
+        }
+
+        function estimateTravelTime(lat1, lon1, lat2, lon2) {
+            function toRad(x) { return x * Math.PI / 180; }
+            var R = 6371;
+            var dLat = toRad(lat2 - lat1);
+            var dLon = toRad(lon2 - lon1);
+            var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+                    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            var distance = R * c;
+            var estimatedTime = (distance / 50) * 60; 
+
+            var timeDisplay = document.getElementById('timeDisplay');
+            timeDisplay.innerText = Math.round(estimatedTime);
+            document.getElementById('travelTime').style.display = 'block';
+        }
+
+        function geocodeDestination(address) {
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&addressdetails=1`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length > 0) {
+                        var destLat = parseFloat(data[0].lat);
+                        var destLng = parseFloat(data[0].lon);
+                        var country = data[0].address ? data[0].address.country : null;
+
+                        if (country && country !== 'United States') {
+                            alert("Sorry, we only support destinations within the United States.");
+                            return;
+                        }
+
+                        updateMap(destLat, destLng);
+                    } else {
+                        alert("Destination could not be found. Please enter a valid location.");
+                    }
+                })
+                .catch(error => {
+                    alert("Error fetching destination data.");
+                });
+        }
+
+        var stripe = Stripe('YOUR_STRIPE_PUBLIC_KEY');
+        var elements = stripe.elements();
+        var card = elements.create('card');
+
+        document.getElementById('paymentMethod').addEventListener('change', function(event) {
+            if (event.target.value === 'Card') {
+                document.getElementById('card-element-section').style.display = 'block';
+                card.mount('#card-element');
+            } else {
+                document.getElementById('card-element-section').style.display = 'none';
+            }
+        });
+
+        document.getElementById("rideForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            var destination = document.getElementById("destination").value.trim();
+            var passengers = document.getElementById("passengers").value;
+            var rideType = document.getElementById("rideType").value;
+            var paymentMethod = document.getElementById("paymentMethod").value;
+
+            if (!destination || !passengers || !rideType || !paymentMethod) {
+                alert("Please fill in all fields correctly.");
+                return;
+            }
+
+            geocodeDestination(destination);
+
+            if (paymentMethod === 'Card') {
+                stripe.createToken(card).then(function(result) {
+                    if (result.error) {
+                        alert("Payment error: " + result.error.message);
+                        return;
+                    } else {
+                        alert('Payment processed successfully!');
+                    }
+                });
+            } else {
+                alert('Ride booked successfully without card payment!');
+            }
+        });
+    </script>
+
+</body>
+</html>

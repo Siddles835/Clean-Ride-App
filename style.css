@@ -1,0 +1,186 @@
+#body1{
+    text-align: center;
+    border-style: solid;
+    border-color: #007698;
+    margin: 20px;
+    padding: 20px;
+    background-color: #f3f4f0;
+    font-family: "HK Grotesk Pro";
+}
+
+body{
+    margin: 20px;
+    border: 10px solid #007698;
+    padding: 20px;
+    text-align: center;
+    font-family: sans-serif;
+}
+
+#body3{
+    text-align: center;
+    border-style: solid;
+    border-color: #007698;
+    margin: 20px;
+    padding: 20px;
+    background-color: #f3f4f0;
+    font-family: "HK Grotesk Pro";
+}
+
+#as{
+    background-color:#fcb040;
+}
+
+#bhenchod{
+    background-color: #fcb040;
+}
+
+#header{
+    background-color: #fcb040;
+}
+
+#e{
+    background-color: #007698;
+}
+
+#f{
+    background-color: #fcb040;
+}
+
+#asb{
+    background-color: #007698;
+}
+
+#b{
+    background-color: #007698;
+}
+#c{
+    background-color: #007698;
+}
+#d{
+    background-color: #007698;
+}
+
+#body2{
+    text-align: center;
+    border-color: #007698;
+    margin: 20px;
+    padding: 20px;
+    background-color: #f3f4f0;
+    margin: 20px;
+    padding: 20px;
+    font-family: "HK Grotesk Pro";
+}
+
+#Anotherbody{
+    text-align: center;
+    border-color: #007698;
+    margin: 20px;
+    padding: 20px;
+    background-color: #f3f4f0;
+    margin: 20px;
+    padding: 20px;
+    font-family: "HK Grotesk Pro";
+}
+
+#Anotherbody2{
+    text-align: center;
+    border-color: #007698;
+    margin: 20px;
+    padding: 20px;
+    background-color: #f3f4f0;
+    margin: 20px;
+    padding: 20px;
+    font-family: "HK Grotesk Pro";
+}
+
+#Anotherbody3{
+    text-align: center;
+    border-color: #007698;
+    margin: 20px;
+    padding: 20px;
+    background-color: #f3f4f0;
+    margin: 20px;
+    padding: 20px;
+    font-family: "HK Grotesk Pro";
+}
+
+#butt{
+    background-color: #fcb040;
+}
+#butt2{
+    background-color: #fcb040;
+}
+#butt3{
+    background-color: #fcb040;
+}
+
+#Canvas1{
+    width:600px;
+    height:600px;
+}
+#Canvas2{
+    width:600px;
+    height:600px;
+}
+#Canvas3{
+    width:600px;
+    height:600px;
+}
+#Button1{
+    width:200px;
+    height:200px;
+    background-color: #007698;
+}
+
+#SchoolDistrict{
+    background-color: #fcb040;
+}
+#RideShare{
+    background-color: #007698;
+}
+
+#Button2{
+    width:200px;
+    height:200px;
+    background-color: #fcb040;
+}
+.inline{
+    display: inline-block;
+    margin-right: 5px;
+}
+#driverIcon{
+    width:50px;
+    height:50px;
+}
+#customerIcon{
+    width:50px;
+    height:50px;
+}
+
+#SignInButton{
+    background-color: #fcb040;
+}
+
+#CreateAccountButton{
+    background-color: #fcb040;
+}
+
+#Shittybutton1{
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+#ShittyButton2{
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
